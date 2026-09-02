@@ -1,0 +1,6 @@
+{
+  "name": "Lunatory",
+  "description": "Production-quality fast-food and restaurant inventory management system with offline-first sync, smart truck ordering, rapid count mode, barcode scanning, waste tracking, and animated fox guide.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
