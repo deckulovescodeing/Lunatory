@@ -435,7 +435,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     >
                       <option value="crew">Crew Member (Counting, Waste, Basic Scans)</option>
                       <option value="manager">Shift Manager (Approve Counts, Waste, Orders)</option>
-                      <option value="admin">Store Admin / GM (Full Master Control & Database)</option>
+                      <option value="gm">General Manager (GM) — Full Operational Control</option>
+                      <option value="admin">System Admin — Master Server & Local Full Control</option>
                     </select>
                   </div>
 

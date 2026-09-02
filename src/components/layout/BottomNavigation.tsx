@@ -42,7 +42,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   lowStockCount,
   peersCount = 0,
 }) => {
-  const isManagerOrAdmin = userRole === 'manager' || userRole === 'admin';
+  const isManagerOrAdmin = userRole === 'manager' || userRole === 'gm' || userRole === 'admin';
+  const isGmOrAdmin = userRole === 'gm' || userRole === 'admin';
   const isAdmin = userRole === 'admin';
 
   // Primary mobile bottom tabs (5 tabs with center elevated scanner)
@@ -71,7 +72,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
     { id: 'waste', label: 'Waste Log', icon: Trash2 },
     { id: 'orders', label: 'Truck Orders', icon: Truck },
     { id: 'reports', label: 'Reports & Stats', icon: BarChart3 },
-    ...(isAdmin ? [{ id: 'admin' as NavTab, label: 'Admin / Dev', icon: ShieldAlert, requiresAdmin: true }] : []),
+    ...(isGmOrAdmin ? [{ id: 'admin' as NavTab, label: isAdmin ? 'Admin / Dev' : 'GM Operations', icon: ShieldAlert, requiresAdmin: true }] : []),
   ];
 
   const handleTabClick = (tab: NavTab) => {
@@ -150,7 +151,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <BarChart3 className="w-3 h-3" />
           <span>Reports</span>
         </button>
-        {isAdmin && (
+        {isGmOrAdmin && (
           <button
             onClick={() => handleTabClick('admin')}
             className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 shrink-0 ${
@@ -158,7 +159,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
             }`}
           >
             <ShieldAlert className="w-3 h-3" />
-            <span>Admin</span>
+            <span>{isAdmin ? 'Admin' : 'GM'}</span>
           </button>
         )}
       </div>
@@ -253,7 +254,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 {[
                   { id: 'orders' as NavTab, label: 'Truck Orders', icon: Truck },
                   { id: 'reports' as NavTab, label: 'Reports', icon: BarChart3 },
-                  ...(isAdmin ? [{ id: 'admin' as NavTab, label: 'Admin / Dev', icon: ShieldAlert }] : []),
+                  ...(isGmOrAdmin ? [{ id: 'admin' as NavTab, label: isAdmin ? 'Admin / Dev' : 'GM Operations', icon: ShieldAlert }] : []),
                 ].map(({ id, label, icon: Icon }) => {
                   const isActive = currentTab === id;
                   return (

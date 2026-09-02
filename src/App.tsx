@@ -470,6 +470,20 @@ export function App() {
               StorageService.saveStore(s);
               setAllStores(StorageService.getStores());
             }}
+            onSaveStore={(s) => {
+              StorageService.saveStore(s);
+              setAllStores(StorageService.getStores());
+            }}
+            onDeleteStore={(sid) => {
+              StorageService.deleteStore(sid);
+              setAllStores(StorageService.getStores());
+              if (activeStoreId === sid) {
+                const remaining = StorageService.getStores();
+                if (remaining.length > 0) {
+                  setActiveStoreId(remaining[0].id);
+                }
+              }
+            }}
             onResetFactoryData={handleResetFactoryData}
             onExportDatabaseJSON={handleExportDatabaseJSON}
             onImportDatabaseJSON={handleImportDatabaseJSON}

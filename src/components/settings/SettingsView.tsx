@@ -55,6 +55,7 @@ import { p2pSync } from '../../services/p2pSync';
 import { SoundPlayer } from '../../utils/audio';
 import { LunaFox } from '../fox/LunaFox';
 import { StoreManagerSection } from './StoreManagerSection';
+import { CompanionAppDownloadSection } from './CompanionAppDownloadSection';
 
 interface SettingsViewProps {
   currentUser: User | null;
@@ -90,7 +91,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onOpenDevTweaks,
 }) => {
   // Local state for tabs in settings - default to stores management or sync
-  const [activeSubSection, setActiveSubSection] = useState<'stores' | 'sync' | 'p2p' | 'server' | 'theme_audio' | 'backup'>('stores');
+  const [activeSubSection, setActiveSubSection] = useState<'stores' | 'companion_app' | 'sync' | 'p2p' | 'server' | 'theme_audio' | 'backup'>('stores');
 
   // Server sync form state
   const [serverUrl, setServerUrl] = useState(settings.serverSync?.serverUrl || window.location.origin);
@@ -389,6 +390,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-white/10">
           {[
             { id: 'stores', label: 'Stores & Delivery Schedule', icon: StoreIcon, badge: `${allStores.length}` },
+            { id: 'companion_app', label: 'Companion App & Packages', icon: Server, badge: 'Win/Linux/Android' },
             { id: 'sync', label: 'Offline & Sync Overview', icon: Layers },
             { id: 'p2p', label: `P2P Nearby Mesh (${nearbyPeers.length})`, icon: Radio },
             { id: 'server', label: 'Custom Server Hosting', icon: Server },
@@ -461,6 +463,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 else storage.deleteStore(id);
               }}
             />
+          </motion.div>
+        )}
+
+        {/* TAB 0.5: COMPANION APP & MULTI-STORE PACKAGES */}
+        {activeSubSection === 'companion_app' && (
+          <motion.div
+            key="companion_app"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <CompanionAppDownloadSection />
           </motion.div>
         )}
 
