@@ -1,0 +1,89 @@
+LUNATORY PROPRIETARY LICENSE
+Version 1.0 — September 2026
+
+Copyright (c) 2026 Lunatory. All rights reserved.
+
+1. Ownership
+
+Lunatory, including its source code, compiled applications, documentation,
+designs, branding, assets, and related materials (the "Software"), is protected
+by copyright and other applicable intellectual property laws.
+
+Except for the limited permissions expressly granted by this license, no rights
+to the Software are transferred.
+
+2. Permitted Use
+
+Permission is granted to authorized users to download, install, and use the
+Software for personal, testing, evaluation, or internal business operations.
+
+You may make reasonable backup copies of the Software for your own authorized
+use.
+
+3. Restrictions
+
+Without prior written permission from the copyright holder, you may not:
+
+- Sell, sublicense, rent, lease, or commercially redistribute the Software.
+- Repackage, rebrand, or distribute the Software as your own product.
+- Publish or redistribute substantial portions of the source code.
+- Remove or alter copyright, license, attribution, or ownership notices.
+- Use the Lunatory name, logo, branding, or other identifying assets to imply
+  endorsement, partnership, or ownership.
+- Create and distribute a competing commercial product substantially derived
+  from the Software.
+- Circumvent authentication, access controls, licensing controls, or security
+  mechanisms included with the Software.
+
+4. Modifications
+
+Authorized users may modify the Software for private or internal use.
+
+Modified versions may not be publicly distributed, sold, sublicensed, or
+rebranded without prior written permission from the copyright holder.
+
+5. Third-Party Components
+
+The Software may include third-party libraries, frameworks, packages, or other
+components that are subject to their own licenses. Those third-party licenses
+continue to apply to the applicable components.
+
+This license does not override rights granted by third-party licenses.
+
+6. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+USE OF THE SOFTWARE IS AT YOUR OWN RISK.
+
+7. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER OR CONTRIBUTORS
+SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, DATA LOSS, BUSINESS INTERRUPTION,
+LOST PROFITS, OR OTHER LIABILITY ARISING FROM OR RELATED TO THE SOFTWARE OR ITS
+USE.
+
+8. Termination
+
+Your permission to use the Software terminates automatically if you materially
+violate this license.
+
+Upon termination, you must stop distributing or using any copies in a manner
+not otherwise permitted by law or by written authorization from the copyright
+holder.
+
+9. Additional Permission
+
+Additional permissions, including redistribution, commercial licensing,
+integration, or source-code licensing, may be granted separately in writing by
+the copyright holder.
+
+10. Entire License
+
+This license applies to Lunatory unless a specific file, component, release, or
+directory states that a different license applies.
+
+For licensing inquiries, contact the Lunatory project owner through the
+official project repository.
