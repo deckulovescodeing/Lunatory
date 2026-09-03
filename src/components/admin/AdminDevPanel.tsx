@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { AuditLog, Store, User, UserRole } from '../../types';
 import { SoundPlayer } from '../../utils/audio';
+import { storage } from '../../services/storage';
 import { CompanionAppDownloadSection } from '../settings/CompanionAppDownloadSection';
 
 const DAYS_OF_WEEK = [
@@ -768,6 +769,32 @@ export const AdminDevPanel: React.FC<AdminDevPanelProps> = ({
             >
               <Upload className="w-4 h-4" />
               <span>Import & Restore Database</span>
+            </button>
+          </div>
+
+          {/* Clean Slate Wipe */}
+          <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Wipe Database & Return to Blank Setup Wizard</span>
+              </div>
+              <div className="text-[11px] text-slate-400 mt-0.5">
+                Prepares the application to be shared or exported as a clean slate with zero personal data.
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (window.confirm('Wipe all local data and return to the First-Run Setup Wizard?')) {
+                  storage.resetToBlankSetup();
+                  SoundPlayer.playSuccessFanfare();
+                  window.location.reload();
+                }
+              }}
+              className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs font-bold rounded-xl flex items-center gap-1.5 shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Wipe & Restart Blank Setup</span>
             </button>
           </div>
         </div>

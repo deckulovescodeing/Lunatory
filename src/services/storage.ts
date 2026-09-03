@@ -134,15 +134,101 @@ class StorageService {
     this.notify();
   }
 
+  public isInitialSetupComplete(): boolean {
+    if (typeof window === 'undefined') return true;
+    const isInit = localStorage.getItem('lunatory_initialized') === 'true';
+    const rawStores = localStorage.getItem(STORAGE_KEYS.STORES);
+    const rawUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+    if (!isInit || !rawStores || !rawUsers) return false;
+    try {
+      const stores = JSON.parse(rawStores);
+      const users = JSON.parse(rawUsers);
+      return Array.isArray(stores) && stores.length > 0 && Array.isArray(users) && users.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
   public init() {
     if (typeof window === 'undefined') return;
 
-    // Check if initial data exists; if not, initialize with Hardee's Harrogate seed data
-    if (!localStorage.getItem(STORAGE_KEYS.STORES)) {
-      this.resetToDefaults();
-    } else {
+    if (this.isInitialSetupComplete()) {
       this.loadSyncQueue();
     }
+  }
+
+  public completeInitialSetup(params: {
+    store: Store;
+    user: User;
+    categories?: Category[];
+  }) {
+    const { store, user, categories = [] } = params;
+
+    localStorage.setItem(STORAGE_KEYS.STORES, JSON.stringify([store]));
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify([user]));
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.WASTE_ENTRIES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.TRUCK_ORDERS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.COUNT_SESSIONS, JSON.stringify([]));
+    localStorage.removeItem(STORAGE_KEYS.ACTIVE_COUNT_SESSION);
+    localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify([]));
+
+    const initialLog: AuditLog = {
+      id: 'audit-init-' + Date.now(),
+      storeId: store.id,
+      userId: user.id,
+      userName: user.name,
+      action: 'Initial Store Setup',
+      category: 'system',
+      details: `Initialized store "${store.name}" (#${store.storeNumber}) with primary manager ${user.name} (${user.role.toUpperCase()}).`,
+      timestamp: new Date().toISOString(),
+    };
+    localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([initialLog]));
+
+    const welcomeNotif: AppNotification = {
+      id: 'notif-welcome-' + Date.now(),
+      type: 'system',
+      title: 'Welcome to Lunatory!',
+      message: `Setup completed for ${store.name}. You are logged in as ${user.name} (${user.role}). Start by adding your inventory items or scanning barcodes.`,
+      timestamp: new Date().toISOString(),
+      read: false,
+      priority: 'low',
+    };
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([welcomeNotif]));
+
+    const cleanSettings: AppSettings = {
+      ...DEFAULT_APP_SETTINGS,
+      activeStoreId: store.id,
+      deviceName: `${store.name} Workstation`,
+    };
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(cleanSettings));
+    localStorage.setItem('lunatory_initialized', 'true');
+
+    this.syncState.queue = [];
+    this.syncState.lastSyncedAt = new Date().toISOString();
+    this.notify();
+  }
+
+  public resetToBlankSetup() {
+    localStorage.removeItem('lunatory_initialized');
+    localStorage.removeItem(STORAGE_KEYS.STORES);
+    localStorage.removeItem(STORAGE_KEYS.USERS);
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+    localStorage.removeItem(STORAGE_KEYS.INVENTORY);
+    localStorage.removeItem(STORAGE_KEYS.WASTE_ENTRIES);
+    localStorage.removeItem(STORAGE_KEYS.TRUCK_ORDERS);
+    localStorage.removeItem(STORAGE_KEYS.COUNT_SESSIONS);
+    localStorage.removeItem(STORAGE_KEYS.ACTIVE_COUNT_SESSION);
+    localStorage.removeItem(STORAGE_KEYS.AUDIT_LOGS);
+    localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
+    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+    localStorage.removeItem(STORAGE_KEYS.SYNC_QUEUE);
+    localStorage.removeItem('lunatory_dev_mode_unlocked');
+    this.syncState.queue = [];
+    this.notify();
   }
 
   public resetToDefaults() {
@@ -158,6 +244,7 @@ class StorageService {
     localStorage.setItem(STORAGE_KEYS.COUNT_SESSIONS, JSON.stringify([]));
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_COUNT_SESSION);
     localStorage.setItem(STORAGE_KEYS.SYNC_QUEUE, JSON.stringify([]));
+    localStorage.setItem('lunatory_initialized', 'true');
 
     // Default current user: Store GM Admin (Alex Rivera)
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(SEED_USERS[0]));
@@ -184,7 +271,7 @@ class StorageService {
 
   public getUsers(): User[] {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
-    return raw ? JSON.parse(raw) : SEED_USERS;
+    return raw ? JSON.parse(raw) : [];
   }
 
   public saveUser(user: User) {
@@ -210,14 +297,33 @@ class StorageService {
   // --- Stores ---
   public getStores(): Store[] {
     const raw = localStorage.getItem(STORAGE_KEYS.STORES);
-    return raw ? JSON.parse(raw) : SEED_STORES;
+    return raw ? JSON.parse(raw) : [];
   }
 
   public getActiveStore(): Store {
     const stores = this.getStores();
     const settings = this.getSettings();
     const active = stores.find((s) => s.id === settings.activeStoreId);
-    return active || stores[0] || SEED_STORES[0];
+    if (active) return active;
+    if (stores.length > 0) return stores[0];
+    return {
+      id: 'store-default-1',
+      storeNumber: '101',
+      name: 'Primary Store',
+      brand: 'Restaurant',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+      phone: '',
+      truckDays: ['Monday', 'Thursday'],
+      orderCutoffHours: 14,
+      cutoffHour: 14,
+      cutoffDay: 'Sunday',
+      cutoffTimeStr: '14:00',
+      defaultParMultiplier: 1.15,
+      leadTimeDays: 2,
+    };
   }
 
   public setActiveStoreId(storeId: string) {
@@ -274,7 +380,7 @@ class StorageService {
   // --- Categories ---
   public getCategories(): Category[] {
     const raw = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-    return raw ? JSON.parse(raw) : SEED_CATEGORIES;
+    return raw ? JSON.parse(raw) : [];
   }
 
   public saveCategory(category: Category) {
@@ -292,14 +398,14 @@ class StorageService {
   // --- Inventory Items ---
   public getInventory(storeId?: string): InventoryItem[] {
     const raw = localStorage.getItem(STORAGE_KEYS.INVENTORY);
-    const items: InventoryItem[] = raw ? JSON.parse(raw) : SEED_INVENTORY;
+    const items: InventoryItem[] = raw ? JSON.parse(raw) : [];
     const targetStoreId = storeId || this.getActiveStore().id;
     return items.filter((item) => item.storeId === targetStoreId);
   }
 
   public getAllInventory(): InventoryItem[] {
     const raw = localStorage.getItem(STORAGE_KEYS.INVENTORY);
-    return raw ? JSON.parse(raw) : SEED_INVENTORY;
+    return raw ? JSON.parse(raw) : [];
   }
 
   public getItemById(id: string): InventoryItem | undefined {
@@ -466,7 +572,7 @@ class StorageService {
   // --- Waste Logging ---
   public getWasteEntries(storeId?: string): WasteEntry[] {
     const raw = localStorage.getItem(STORAGE_KEYS.WASTE_ENTRIES);
-    const entries: WasteEntry[] = raw ? JSON.parse(raw) : SEED_WASTE_ENTRIES;
+    const entries: WasteEntry[] = raw ? JSON.parse(raw) : [];
     const targetStoreId = storeId || this.getActiveStore().id;
     return entries.filter((e) => e.storeId === targetStoreId);
   }
@@ -520,7 +626,7 @@ class StorageService {
   // --- Truck Orders ---
   public getTruckOrders(storeId?: string): TruckOrder[] {
     const raw = localStorage.getItem(STORAGE_KEYS.TRUCK_ORDERS);
-    const orders: TruckOrder[] = raw ? JSON.parse(raw) : SEED_TRUCK_ORDERS;
+    const orders: TruckOrder[] = raw ? JSON.parse(raw) : [];
     const targetStoreId = storeId || this.getActiveStore().id;
     return orders.filter((o) => o.storeId === targetStoreId);
   }
@@ -598,7 +704,7 @@ class StorageService {
   // --- Notifications ---
   public getNotifications(): AppNotification[] {
     const raw = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-    return raw ? JSON.parse(raw) : SEED_NOTIFICATIONS;
+    return raw ? JSON.parse(raw) : [];
   }
 
   public addNotification(notif: Omit<AppNotification, 'id' | 'timestamp' | 'read'>) {
@@ -638,7 +744,7 @@ class StorageService {
   // --- Audit Logs ---
   public getAuditLogs(storeId?: string): AuditLog[] {
     const raw = localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS);
-    const logs: AuditLog[] = raw ? JSON.parse(raw) : SEED_AUDIT_LOGS;
+    const logs: AuditLog[] = raw ? JSON.parse(raw) : [];
     const targetStoreId = storeId || this.getActiveStore().id;
     return logs.filter((l) => l.storeId === targetStoreId);
   }

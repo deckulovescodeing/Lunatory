@@ -32,16 +32,21 @@ import { ItemDetailModal } from './components/inventory/ItemDetailModal';
 import { UserProfileModal } from './components/profile/UserProfileModal';
 import { BuildNumberFooter } from './components/common/BuildNumberFooter';
 import { DevTweaksModal } from './components/admin/DevTweaksModal';
+import { FirstRunSetupPrompt } from './components/setup/FirstRunSetupPrompt';
 import { SoundPlayer } from './utils/audio';
 
 export function App() {
+  // First-Time Setup State
+  const [isSetupComplete, setIsSetupComplete] = useState<boolean>(() => StorageService.isInitialSetupComplete());
+
   // App State from StorageService
   const [currentUser, setCurrentUser] = useState<User | null>(() => StorageService.getCurrentUser());
   const [allUsers, setAllUsers] = useState<User[]>(() => StorageService.getUsers());
   const [allStores, setAllStores] = useState<Store[]>(() => StorageService.getStores());
   const [activeStoreId, setActiveStoreId] = useState<string>(() => {
     const user = StorageService.getCurrentUser();
-    return user?.activeStoreId || 'store-harrogate-01';
+    const stores = StorageService.getStores();
+    return user?.activeStoreId || stores[0]?.id || 'store-main';
   });
 
   const [inventory, setInventory] = useState<InventoryItem[]>(() => StorageService.getInventory(activeStoreId));
@@ -274,7 +279,43 @@ export function App() {
     setAllUsers(StorageService.getUsers());
     setWasteEntries(StorageService.getWasteEntries(activeStoreId));
     setTruckOrders(StorageService.getTruckOrders(activeStoreId));
+    setIsSetupComplete(true);
   };
+
+  const handleSetupComplete = (data: {
+    store: Store;
+    user: User;
+    categories: Category[];
+  }) => {
+    StorageService.completeInitialSetup({
+      store: data.store,
+      user: data.user,
+      categories: data.categories,
+    });
+    setIsSetupComplete(true);
+    setCurrentUser(data.user);
+    setAllUsers([data.user]);
+    setAllStores([data.store]);
+    setActiveStoreId(data.store.id);
+    setCategories(data.categories);
+    setInventory([]);
+    setWasteEntries([]);
+    setTruckOrders([]);
+    setCountSessions([]);
+    setActiveCountSession(null);
+    setNotifications(StorageService.getNotifications());
+    setAuditLogs(StorageService.getAuditLogs());
+  };
+
+  // If first-time onboarding setup has not been performed, show Setup Wizard
+  if (!isSetupComplete) {
+    return (
+      <div className="min-h-screen relative font-sans text-slate-100 antialiased selection:bg-amber-400 selection:text-slate-950 flex items-center justify-center p-3">
+        <TimeSkyBackground themeMode={settings.themeMode} reducedMotion={settings.reducedMotion} />
+        <FirstRunSetupPrompt onComplete={handleSetupComplete} />
+      </div>
+    );
+  }
 
   // If user is not logged in, show Login Screen
   if (!currentUser) {

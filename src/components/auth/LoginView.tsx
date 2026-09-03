@@ -41,8 +41,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showRoster, setShowRoster] = useState<boolean>(false);
 
   // Email/Password fields
-  const [emailInput, setEmailInput] = useState<string>('admin@hardees-harrogate.com');
-  const [passwordInput, setPasswordInput] = useState<string>('••••••••');
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState<string>('');
 
   // Physical keyboard listener for tablet/workstation
   useEffect(() => {
@@ -114,7 +114,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const found = allUsers.find((u) => u.email.toLowerCase() === emailInput.trim().toLowerCase());
+    const found = allUsers.find((u) => u.email && u.email.toLowerCase() === emailInput.trim().toLowerCase());
     if (found) {
       SoundPlayer.playSuccessFanfare();
       onLoginSuccess(found, selectedStoreId);

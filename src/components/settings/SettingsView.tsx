@@ -1266,30 +1266,59 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               )}
             </div>
 
-            {/* Reset Defaults */}
+            {/* Factory Reset to Blank Slate (For Sharing) */}
             <div className="bg-slate-900/80 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2 text-rose-300">
-                    <AlertTriangle className="w-4 h-4 text-rose-400" />
-                    <span>Reset to Hardee's Harrogate Seed Data</span>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2 text-amber-300">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>Wipe All Data & Return to Blank Setup (Ready for Sharing)</span>
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Resets all inventory items, US Foods delivery orders, categories, and logs to initial defaults.
+                    Completely erases all personal store data, employees, inventory, logs, and orders so you can share a clean, fresh app.
                   </p>
                 </div>
 
                 <button
                   onClick={() => {
-                    if (window.confirm('Reset all store data to Hardee’s Harrogate defaults?')) {
+                    if (window.confirm('Wipe all data and restart the first-time setup wizard with a completely blank database?')) {
+                      storage.resetToBlankSetup();
+                      SoundPlayer.playSuccessFanfare();
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs self-start sm:self-auto transition-all flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Wipe & Start Blank Setup</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Optional Reset Defaults */}
+            <div className="bg-slate-900/80 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2 text-rose-300">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <span>Load Demo / Sample Seed Data</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Populates the app with sample quick-service inventory items, orders, and demo staff for testing.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (window.confirm('Load sample demo seed data? This will overwrite existing inventory items.')) {
                       storage.resetToDefaults();
                       SoundPlayer.playSuccessFanfare();
-                      alert('Data has been reset to defaults.');
+                      window.location.reload();
                     }
                   }}
                   className="px-4 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-rose-300 font-bold text-xs self-start sm:self-auto transition-all"
                 >
-                  Reset Defaults
+                  Load Demo Data
                 </button>
               </div>
             </div>
